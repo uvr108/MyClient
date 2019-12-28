@@ -1,0 +1,36 @@
+<div class="container wrapper">
+  <div class="row">
+
+      <!-- Issue table -->
+      <div class="col-md-12">
+          <div class="inner">
+              <h3>{{table}} {{campos[table] | json}}</h3>
+              <table class="table table-bordered">
+                  <thead>
+                      <tr>
+                          <th scope="col">#</th>
+                          <th scope="col" *ngFor='let c of campos[table]'>{{c}}</th>
+                          <th scope="col">&nbsp;</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let issues of IssuesList">
+
+
+                          <th scope="row">{{issues | json}}</th>
+                          <td>{{issues.name}}</td>
+                          <td>{{issues.createdAt}}</td>
+                          <td>{{issues.updatedAt}}</td>
+                          <td>
+                              <button type="button" class="btn btn-success btn-sm move-right" [routerLink]="['/edit-issue/', issues.id]">Edit</button>
+                              &nbsp;<button type="button" class="btn btn-danger btn-sm" (click)="deleteIusse(issues)">Remove</button>
+                          </td>
+
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+  </div>
+</div>
