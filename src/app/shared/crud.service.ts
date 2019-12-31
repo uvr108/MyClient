@@ -31,8 +31,8 @@ CreateIssue(data): Observable<Campos> {
 }
 
 // GET
-GetIssue(id): Observable<Campos> {
-  return this.http.get<Campos>(this.baseurl + '/api/' + id)
+GetIssue(table, id): Observable<[{}]> {
+  return this.http.get<[{}]>(this.baseurl + '/api/presupuestos/' + id + '/items')
   .pipe(
     retry(1),
     catchError(this.errorHandl)
@@ -40,8 +40,8 @@ GetIssue(id): Observable<Campos> {
 }
 
 // GET
-GetIssues(table: string): Observable<{}> {
-  return this.http.get<{}>(this.baseurl + '/api/' + table)
+GetIssues(table: string): Observable<Array<{}>> {
+  return this.http.get<Array<{}>>(this.baseurl + '/api/' + table)
   .pipe(
     retry(1),
     catchError(this.errorHandl)

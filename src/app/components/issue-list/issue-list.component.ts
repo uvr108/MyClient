@@ -1,19 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild , AfterViewInit} from '@angular/core';
 import { CrudService } from '../../shared/crud.service';
 import { ActivatedRoute } from '@angular/router';
 import { CAMPOS } from '../../campos';
+import { TreeComponent } from '../tree/tree.component';
 
 @Component({
   selector: 'app-issue-list',
   templateUrl: './issue-list.component.html',
   styleUrls: ['./issue-list.component.css']
 })
-export class IssueListComponent implements OnInit {
+export class IssueListComponent implements OnInit, AfterViewInit {
 
-  IssuesList: any = [];
+  padre: any = [];
+  hijo: any = [];
 
   table: string;
   campos: {};
+
+
+  // @ViewChild('TreeComponent', {static: true}) tree: TreeComponent;
 
   ngOnInit() {
     this.route
@@ -23,7 +28,14 @@ export class IssueListComponent implements OnInit {
 
     this.campos = CAMPOS;
 
-    this.loadIssues();
+    this.load('presupuestos');
+
+  }
+
+
+  ngAfterViewInit() {
+    // console.log(this.tree.mostra);
+
   }
 
   constructor(
@@ -32,11 +44,11 @@ export class IssueListComponent implements OnInit {
   ) { }
 
    // Issues list
-   loadIssues() {
-    return this.crudService.GetIssues(this.table).subscribe((data: {}) => {
-      this.IssuesList = data;
+   load(table: string) {
+    return this.crudService.GetIssues(table).subscribe((data: Array<{}>) => {
+      this.padre = data;
     });
-  }
+   }
 
     // Delete issue
 

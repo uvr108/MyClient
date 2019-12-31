@@ -8,22 +8,24 @@ import { EditIssueComponent } from './components/edit-issue/edit-issue.component
 import { IssueListComponent } from './components/issue-list/issue-list.component';
 
 import { CrudService } from './shared/crud.service';
-
 import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CdkTableModule} from '@angular/cdk/table';
+import { TreeComponent } from './components/tree/tree.component';
+import { TopBarComponent } from './components/top-bar/top-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AddIssueComponent,
     EditIssueComponent,
-    IssueListComponent
-  ],
+    IssueListComponent,
+    TreeComponent,
+    TopBarComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    BrowserAnimationsModule
+    CdkTableModule
   ],
   providers: [CrudService],
   bootstrap: [AppComponent]
