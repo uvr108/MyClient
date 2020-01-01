@@ -1,15 +1,14 @@
 <div class="ng-template" style="padding-left: 10px;">
 
     <h4>Presupuesto</h4>
-    <div style="padding-left: 15px;">
-      <p>Presupuesto</p>
+    <div style="padding-left: 15px; padding-top: 0px; padding-bottom: 0px;">
+      <p>Presupuesto | Creación</p>
     </div>
 
     <div *ngFor="let p of padre; index as Id">
-
        <app-tree [ref]="p.id" [name]="p.name"></app-tree>
-
     </div>
+    <button type="button" class="btn btn-link btn-sm">[ + ]</button>
 </div>
 <!--
 <button type="button" class="btn btn-success btn-sm move-right" [routerLink]="['/edit-issue/', issues.id]">Edit</button>
