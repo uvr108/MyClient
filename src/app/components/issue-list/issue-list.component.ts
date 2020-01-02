@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild , AfterViewInit} from '@angular/core';
 import { CrudService } from '../../shared/crud.service';
 import { ActivatedRoute } from '@angular/router';
 import { CAMPOS } from '../../campos';
-import { TreeComponent } from '../tree/tree.component';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-issue-list',
@@ -17,8 +17,29 @@ export class IssueListComponent implements OnInit, AfterViewInit {
   table: string;
   campos: {};
 
+  nuevo = false;
 
   // @ViewChild('TreeComponent', {static: true}) tree: TreeComponent;
+
+  listForm = this.fb.group({
+    name: ['', Validators.required]
+  });
+
+  public marcar_nuevo() {
+    this.nuevo = this.nuevo === true ? false : true;
+  }
+
+  public modifica(h: {}) {
+    console.log(h);
+    this.marcar_nuevo();
+    this.updateTree(h);
+  }
+
+  updateTree(h: any) {
+    this.listForm.patchValue({
+      name: h.name
+    });
+  }
 
   ngOnInit() {
     this.route
@@ -27,11 +48,10 @@ export class IssueListComponent implements OnInit, AfterViewInit {
       .subscribe(v => this.table = v['table']);
 
     this.campos = CAMPOS;
-
     this.load('presupuestos');
-
   }
 
+  onSubmit() { console.log(this.listForm.value); }
 
   ngAfterViewInit() {
     // console.log(this.tree.mostra);
@@ -39,8 +59,9 @@ export class IssueListComponent implements OnInit, AfterViewInit {
   }
 
   constructor(
-    public crudService: CrudService,
-    private route: ActivatedRoute
+    private crudService: CrudService,
+    private route: ActivatedRoute,
+    private fb: FormBuilder
   ) { }
 
    // Issues list
