@@ -12,10 +12,13 @@ import { CrudService } from '../../shared/crud.service';
       // <div> Hay {{ peopleCounter }} personas </div>
       -->
       <button class="btn btn-link" (click)="marcar()">[ * ]</button>
-      <a href="#">{{name}}</a>
+      <button class="btn btn-link" (click)="mensage(name)">[{{name}}]</button>
       | 2020-01-02T12:23:40
       <div *ngIf="mostra" style="padding-left: 25px;">
-          <h4>Items</h4>
+          <h4>Items |
+          <button type="button" class="btn btn-link btn-sm"
+          >[ ^ ]
+          </button></h4>
           <p>item | monto</p>
           <div *ngFor="let h of hijo">
               <p>
@@ -23,10 +26,7 @@ import { CrudService } from '../../shared/crud.service';
               <button type="button" class="btn btn-link btn-sm"
               (click)="modifica(h)">{{h.name}}
               </button>
-              | {{ h.monto }} |
-              <button type="button" class="btn btn-link btn-sm"
-               >[ ^ ]
-              </button>
+              | {{ h.monto }}
               </p>
           </div>
 
@@ -72,17 +72,6 @@ export class TreeComponent implements OnInit {
   treeForm = this.fb.group({
     name: ['', Validators.required],
     monto: ['']
-    /*
-    address: this.fb.group({
-      street: [''],
-      city: [''],
-      state: [''],
-      zip: ['']
-    }),
-    aliases: this.fb.array([
-      this.fb.control('')
-    ])
-    */
   });
 
 
@@ -102,6 +91,8 @@ export class TreeComponent implements OnInit {
 
   }
 
+  mensage(name) { console.log(name); }
+
   public marcar() {
     this.mostra = this.mostra === true ? false : true;
   }
@@ -110,9 +101,17 @@ export class TreeComponent implements OnInit {
     this.nuevo = this.nuevo === true ? false : true;
   }
 
-  public modifica(data: {}) {
-    console.log(data);
+  public modifica(h: {}) {
+    console.log(h);
     this.marcar_nuevo();
+    this.updateTree(h);
+  }
+
+  updateTree(h: any) {
+    this.treeForm.patchValue({
+      name: h.name,
+      monto: h.monto
+    });
   }
 
   constructor(private crudService: CrudService, private fb: FormBuilder) { }
