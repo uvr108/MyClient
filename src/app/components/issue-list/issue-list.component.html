@@ -6,9 +6,23 @@
     </div>
 
     <div *ngFor="let p of padre; index as Id">
+
        <app-tree [ref]="p.id" [name]="p.name"></app-tree>
     </div>
-    <button type="button" class="btn btn-link btn-sm">[ + ]</button>
+
+    <button type="button" class="btn btn-link btn-sm" (click)="marcar_nuevo()">[ + ]</button>
+
+    <div *ngIf="nuevo" style="padding-left: 20px; padding-right: 20px; ">
+    <hr>
+    <form [formGroup]="listForm" (ngSubmit)="onSubmit()">
+      <p>
+        Presupuesto:
+        <input type="text" formControlName="name" required>
+        &nbsp;<button class="btn btn-info btn-sm" type="submit"
+        [disabled]="!listForm.valid">Submit</button>
+      </p>
+    </form>
+    </div>
 </div>
 <!--
 <button type="button" class="btn btn-success btn-sm move-right" [routerLink]="['/edit-issue/', issues.id]">Edit</button>
