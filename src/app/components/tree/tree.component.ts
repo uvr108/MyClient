@@ -1,4 +1,4 @@
-import {Component,  Input, OnInit} from '@angular/core';
+import {Component,  Input, OnInit, Output, EventEmitter} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { CrudService } from '../../shared/crud.service';
 
@@ -63,6 +63,7 @@ export class TreeComponent implements OnInit {
 
   @Input() ref: number;
   @Input() name: string;
+  @Output() enviar = new EventEmitter<string>();
 
   totalPeople = 4;
   ctx = {numberOfPeople: this.totalPeople};
@@ -91,7 +92,9 @@ export class TreeComponent implements OnInit {
 
   }
 
-  mensage(name) { console.log(name); }
+  mensage(name: string) {
+    this.enviar.emit(name);
+  }
 
   public marcar() {
     this.mostra = this.mostra === true ? false : true;

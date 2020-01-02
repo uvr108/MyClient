@@ -49,8 +49,8 @@ GetIssues(table: string): Observable<Array<{}>> {
 }
 
 // PUT
-UpdateIssue(id, data): Observable<Campos> {
-  return this.http.put<Campos>(this.baseurl + '/api/' + id, JSON.stringify(data), this.httpOptions)
+UpdateIssue(id, data, table): Observable<{}> {
+  return this.http.put<{}>(this.baseurl + '/api/' + table + '/' + id, JSON.stringify(data), this.httpOptions)
   .pipe(
     retry(1),
     catchError(this.errorHandl)

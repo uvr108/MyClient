@@ -3,6 +3,10 @@ import { CrudService } from '../../shared/crud.service';
 import { ActivatedRoute } from '@angular/router';
 import { CAMPOS } from '../../campos';
 import { FormBuilder, Validators } from '@angular/forms';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+
+// vscode://github.vscode-pull-request-github/did-authenticate?
+// windowId=1&code=b653a26be7b08d688288&state=a68afe53-d54b-46a5-8668-3c9b9bf6908e
 
 @Component({
   selector: 'app-issue-list',
@@ -25,14 +29,17 @@ export class IssueListComponent implements OnInit, AfterViewInit {
     name: ['', Validators.required]
   });
 
-  public marcar_nuevo() {
-    this.nuevo = this.nuevo === true ? false : true;
+  enviar(name) {
+    if (!this.nuevo) { this.marcar_nuevo(); }
+    this.updateTree({name});
+    console.log(`mostra en padre [hijo]: ${name} | ${this.nuevo}`);
   }
 
-  public modifica(h: {}) {
-    console.log(h);
-    this.marcar_nuevo();
-    this.updateTree(h);
+  cerrar() { this.nuevo = false; }
+
+  public marcar_nuevo() {
+    this.updateTree({"nombre": ''});
+    this.nuevo = this.nuevo === true ? false : true;
   }
 
   updateTree(h: any) {

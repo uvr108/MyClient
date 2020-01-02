@@ -7,7 +7,7 @@
 
     <div *ngFor="let p of padre; index as Id">
 
-       <app-tree [ref]="p.id" [name]="p.name"></app-tree>
+       <app-tree [ref]="p.id" [name]="p.name" (enviar) = "enviar($event)"></app-tree>
     </div>
 
     <button type="button" class="btn btn-link btn-sm" (click)="marcar_nuevo()">[ + ]</button>
@@ -20,6 +20,7 @@
         <input type="text" formControlName="name" required>
         &nbsp;<button class="btn btn-info btn-sm" type="submit"
         [disabled]="!listForm.valid">Submit</button>
+        &nbsp;<button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Close</button>
       </p>
     </form>
     </div>
