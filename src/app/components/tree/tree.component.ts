@@ -12,7 +12,7 @@ import { CrudService } from '../../shared/crud.service';
       // <div> Hay {{ peopleCounter }} personas </div>
       -->
       <button class="btn btn-link" (click)="marcar()">[ * ]</button>
-      <button class="btn btn-link" (click)="mensage(name)">{{name}}</button>
+      <button class="btn btn-link" (click)="mensage(name, ref)">{{name}}</button>
       <div *ngIf="mostra" style="padding-left: 25px;">
           <h4>Items
           <button type="button" class="btn btn-link btn-sm"
@@ -64,7 +64,7 @@ export class TreeComponent implements OnInit {
 
   @Input() ref: number;
   @Input() name: string;
-  @Output() enviar = new EventEmitter<string>();
+  @Output() enviar = new EventEmitter<object>();
 
   totalPeople = 4;
   ctx = {numberOfPeople: this.totalPeople};
@@ -93,8 +93,8 @@ export class TreeComponent implements OnInit {
 
   }
 
-  mensage(name: string) {
-    this.enviar.emit(name);
+  mensage(name: string, id: number) {
+    this.enviar.emit({name, id});
   }
 
   public marcar() {
@@ -124,8 +124,8 @@ export class TreeComponent implements OnInit {
   onSubmit() {
 
     const dicio: {} = this.treeForm.value;
-    this.crudService.UpdateIssue(dicio['id'], dicio, 'item');
-    console.log(`modifica : ${JSON.stringify(dicio)}`);
+    // this.crudService.Update(dicio['id'], dicio);
+    // console.log(`modifica : ${JSON.stringify(dicio)}`);
 
   }
 
