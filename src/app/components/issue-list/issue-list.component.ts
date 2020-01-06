@@ -27,30 +27,34 @@ campos: {};
 
 nuevo = false;
 
-editPresupuesto = false;
+editPresupuesto = true;
 presupuestos: Presupuesto[];
 
 listForm = this.fb.group({
+  id: [''],
   name: ['', Validators.required]
 });
 
-enviar(name) {
+enviar(msg: object) {
   if (!this.nuevo) { this.marcar_nuevo(); }
-  this.updateTree({name});
-  console.log(`mostra en padre [hijo]: ${name} | ${this.nuevo}`);
+  this.updatePresupuesto(msg);
+  this.editPresupuesto = true;
+  // console.log(`mostra en padre [hijo]: ${JSON.stringify(msg)} | ${this.nuevo}`);
 }
 
 cerrar() { this.nuevo = false; }
 
 public marcar_nuevo() {
-  this.updateTree({'nombre': ''});
+  this.updatePresupuesto({'nombre': ''});
   this.nuevo = this.nuevo === true ? false : true;
+  this.editPresupuesto = false;
 }
 
-updateTree(h: any) {
+updatePresupuesto(msg: object) {
+  // console.log(`msg : ${JSON.stringify(msg['name'])}`);
   this.listForm.patchValue({
-    // id : h.id,
-    name: h.name
+    id : msg['id'],
+    name: msg['name']
   });
 }
 
@@ -59,23 +63,46 @@ ngOnInit() {
     .data
     // tslint:disable-next-line: no-string-literal
     .subscribe(v => this.table = v['table']);
-
   this.campos = CAMPOS;
   this.load();
 }
 
-add(): void {
-
-  let presu: Presupuesto = this.listForm.value;
-  this.crudService
-    .adds(presu)
-    .subscribe(presupuestos => presu = presupuestos);
-
-  this.padre.push(presu);
-}
+// agregar
 
 onSubmit() {
-  this.add();
+  let presu: Presupuesto = this.listForm.value;
+  const add = this.crudService
+    .adds(presu)
+    .subscribe(() => this.load());
+}
+// editar
+
+editar() {
+  const list = this.listForm.value;
+  const id = list['id'];
+  const presu = {name : list['name']};
+  // console.log(`Editar : ${id} | ${JSON.stringify(presu)}`);
+  this.crudService.
+    Update(id, presu).
+    subscribe(() => this.load());
+}
+
+// Listar
+
+load(): void {
+  this.crudService.getList().subscribe(data => {
+  this.padre = data;
+  });
+}
+
+// borrar
+
+borrar() {
+  const list = this.listForm.value;
+  const id = list['id'];
+  console.log(`Borrar : ${JSON.stringify(this.listForm.value)}`);
+  this.crudService.Delete(id).subscribe(() => this.load());
+  this.cerrar();
 }
 
 ngAfterViewInit() {
@@ -87,12 +114,6 @@ constructor(
   private fb: FormBuilder
 ) { }
 
-// Issues list
-load() {
-    return this.crudService.getList().subscribe(data => {
-    this.padre = data;
-  });
-}
 
   // Delete issue
 
