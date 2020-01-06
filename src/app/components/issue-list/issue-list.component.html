@@ -2,7 +2,7 @@
 
     <h4>Presupuesto</h4>
     <div style="padding-left: 15px; padding-top: 0px; padding-bottom: 0px;">
-      <p>Presupuesto | Creación</p>
+      <p>Presupuesto</p>
     </div>
 
     <div *ngFor="let p of padre; index as Id">
@@ -17,10 +17,11 @@
     <form [formGroup]="listForm" (ngSubmit)="onSubmit()">
       <p>
         Presupuesto:
-        <input type="text" formControlName="name" required>
-        &nbsp;<button class="btn btn-info btn-sm" type="submit"
-        [disabled]="!listForm.valid">Submit</button>
-        &nbsp;<button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Close</button>
+        <!--input type="hidden" formControlName="id"-->
+        <input type="text" formControlName="name" required>&nbsp;
+        <button class="btn btn-info btn-sm" type="submit" [disabled]="!listForm.valid">Agregar</button>&nbsp;
+        <button *ngIf="editPresupuesto" class="btn btn-info btn-sm" type="button" (click)="agregar()">Editar</button>&nbsp;
+        <button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Cerrar</button>&nbsp;
       </p>
     </form>
     </div>
