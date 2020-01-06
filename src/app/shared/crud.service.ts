@@ -66,21 +66,19 @@ adds(presu: Presupuesto): Observable<Presupuesto> {
 }
 
 // PUT
-UpdateIssue(id, data, table): Observable<any> {
-  return this.http.put<any>(this.baseurl + '/api/presupuesto/' + id, data, this.httpOptions)
-  .pipe(
-    retry(1),
-    catchError(this.errorHandl)
-  );
+Update(id: number, presu: Presupuesto): Observable<Presupuesto> {
+  return this.http.put<Presupuesto>(this.baseurl + '/api/presupuesto/' + id, presu, this.httpOptions);
 }
 
 // DELETE
-DeleteIssue(id){
-  return this.http.delete<Campos>(this.baseurl + '/api/' + id, this.httpOptions)
+Delete(id: number) {
+  return this.http.delete<Presupuesto>(this.baseurl + '/api/presupuesto/' + id, this.httpOptions);
+  /*
   .pipe(
     retry(1),
     catchError(this.errorHandl)
   );
+  */
 }
 
 // Error handling
