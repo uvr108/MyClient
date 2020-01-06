@@ -4,6 +4,9 @@ import { Campos } from '../campos';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 
+export interface Presupuesto {
+  name: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -13,7 +16,8 @@ export class CrudService {
   baseurl = 'http://localhost:3000';
 
  // Http Headers
- httpOptions = {
+
+httpOptions = {
   headers: new HttpHeaders({
     'Content-Type': 'application/json'
   })
@@ -22,8 +26,8 @@ export class CrudService {
   constructor(private http: HttpClient) { }
 
 // POST
-CreateIssue(data): Observable<Campos> {
-  return this.http.post<Campos>(this.baseurl + '/api/', JSON.stringify(data), this.httpOptions)
+CreateIssue(data): Observable<{}> {
+  return this.http.post<{}>(this.baseurl + '/api/presupuesto', JSON.stringify(data), this.httpOptions)
   .pipe(
     retry(1),
     catchError(this.errorHandl)
@@ -39,7 +43,7 @@ GetIssue(table, id): Observable<[{}]> {
   );
 }
 
-// GET
+/*
 GetIssues(table: string): Observable<Array<{}>> {
   return this.http.get<Array<{}>>(this.baseurl + '/api/' + table)
   .pipe(
@@ -47,10 +51,23 @@ GetIssues(table: string): Observable<Array<{}>> {
     catchError(this.errorHandl)
   );
 }
+*/
+
+getList(): Observable<Presupuesto[]> {
+  return this.http.get<Presupuesto[]>(this.baseurl + '/api/presupuestos')
+    .pipe(
+      retry(1),
+      catchError(this.errorHandl)
+    );
+}
+
+adds(presu: Presupuesto): Observable<Presupuesto> {
+  return this.http.post<Presupuesto>(this.baseurl + '/api/presupuesto', presu, this.httpOptions);
+}
 
 // PUT
-UpdateIssue(id, data, table): Observable<{}> {
-  return this.http.put<{}>(this.baseurl + '/api/' + table + '/' + id, JSON.stringify(data), this.httpOptions)
+UpdateIssue(id, data, table): Observable<any> {
+  return this.http.put<any>(this.baseurl + '/api/presupuesto/' + id, data, this.httpOptions)
   .pipe(
     retry(1),
     catchError(this.errorHandl)
