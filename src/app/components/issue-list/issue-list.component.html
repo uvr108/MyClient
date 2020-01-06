@@ -17,10 +17,11 @@
     <form [formGroup]="listForm" (ngSubmit)="onSubmit()">
       <p>
         Presupuesto:
-        <!--input type="hidden" formControlName="id"-->
+        <input *ngIf="editPresupuesto" type="hidden" formControlName="id">
         <input type="text" formControlName="name" required>&nbsp;
-        <button class="btn btn-info btn-sm" type="submit" [disabled]="!listForm.valid">Agregar</button>&nbsp;
-        <button *ngIf="editPresupuesto" class="btn btn-info btn-sm" type="button" (click)="agregar()">Editar</button>&nbsp;
+        <button *ngIf="!editPresupuesto" class="btn btn-info btn-sm" type="submit" [disabled]="!listForm.valid">Agregar</button>&nbsp;
+        <button *ngIf="editPresupuesto" class="btn btn-info btn-sm" type="button" (click)="editar()">xEditar</button>&nbsp;
+        <button *ngIf="editPresupuesto" class="btn btn-info btn-sm" type="button" (click)="borrar()">Borrar</button>&nbsp;
         <button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Cerrar</button>&nbsp;
       </p>
     </form>
