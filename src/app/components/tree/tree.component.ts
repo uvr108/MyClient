@@ -12,10 +12,9 @@ import { CrudService } from '../../shared/crud.service';
       // <div> Hay {{ peopleCounter }} personas </div>
       -->
       <button class="btn btn-link" (click)="marcar()">[ * ]</button>
-      <button class="btn btn-link" (click)="mensage(name)">[{{name}}]</button>
-      | 2020-01-02T12:23:40
+      <button class="btn btn-link" (click)="mensage(name)">{{name}}</button>
       <div *ngIf="mostra" style="padding-left: 25px;">
-          <h4>Items |
+          <h4>Items
           <button type="button" class="btn btn-link btn-sm"
           >[ ^ ]
           </button></h4>
@@ -39,10 +38,12 @@ import { CrudService } from '../../shared/crud.service';
 
       <form [formGroup]="treeForm" (ngSubmit)="onSubmit()">
         <p>
-          Item:
+          Id
+          <input type="hidden" formControlName="id">
+          Items
           <input type="text" formControlName="name" required>
           Monto:
-          <input type="text" formControlName="monto">
+          <input type="text" formControlName="monto" disabled>
           &nbsp;
           <button class="btn btn-info btn-sm" type="submit"
           [disabled]="!treeForm.valid">Submit</button>
@@ -71,21 +72,21 @@ export class TreeComponent implements OnInit {
   hijo: Array<any>;
 
   treeForm = this.fb.group({
+    id : [''],
     name: ['', Validators.required],
-    monto: ['']
+    monto: ['', {disabled: true}]
   });
-
 
   mostra = false;
   nuevo = false;
 
   presupuestoId = 0;
+  id = 0;
 
   load(table: string, id: number) {
     return this.crudService.GetIssue(table, id).subscribe((data: Array<{}>) => {
       this.hijo = data;
       if (Object(this.hijo).length > 0) {
-          // console.log(this.hijo[0].presupuestoId);
           this.presupuestoId = this.hijo[0].presupuestoId;
       }
     });
@@ -112,6 +113,7 @@ export class TreeComponent implements OnInit {
 
   updateTree(h: any) {
     this.treeForm.patchValue({
+      id : h.id,
       name: h.name,
       monto: h.monto
     });
@@ -120,7 +122,11 @@ export class TreeComponent implements OnInit {
   constructor(private crudService: CrudService, private fb: FormBuilder) { }
 
   onSubmit() {
-    console.log(this.treeForm.value);
+
+    const dicio: {} = this.treeForm.value;
+    this.crudService.UpdateIssue(dicio['id'], dicio, 'item');
+    console.log(`modifica : ${JSON.stringify(dicio)}`);
+
   }
 
   ngOnInit() {
