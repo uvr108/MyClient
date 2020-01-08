@@ -2,6 +2,10 @@ import {Component,  Input, OnInit, Output, EventEmitter} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { CrudService } from '../../shared/crud.service';
 
+export interface Hijo {
+  name: string;
+  // monto: number;
+}
 
 @Component({
   selector: 'app-tree',
@@ -11,49 +15,51 @@ import { CrudService } from '../../shared/crud.service';
       <!--
       // <div> Hay {{ peopleCounter }} personas </div>
       -->
-      <button class="btn btn-link" (click)="marcar()">[ * ]</button>
+      <button class="btn btn-link" (click)="marcar_mostra()">*</button>
       <button class="btn btn-link" (click)="mensage(name, ref)">{{name}}</button>
       <div *ngIf="mostra" style="padding-left: 25px;">
-          <h4>Items
-          <button type="button" class="btn btn-link btn-sm"
-          >[ ^ ]
-          </button></h4>
-          <p>item | monto</p>
-          <div *ngFor="let h of hijo">
-              <p>
-              <a href="{{ h.id }}">[ * ]&nbsp;</a> |
+          <h4>Items</h4>
+          <table>
+          <tr><td>
+          <button class="btn btn-link btn-sm" (click)="marcar_nuevo()">+</button>
+          </td><td>item</td><td>monto</td></tr>
+          <tr *ngFor="let h of hijo">
+              <td>
+              <a href="{{ h.id }}"> * </a>
+              </td>
+              <td>
               <button type="button" class="btn btn-link btn-sm"
-              (click)="modifica(h)">{{h.name}}
+              (click)="modifica(h, h.id)">{{h.name}}
               </button>
-              | {{ h.monto }}
-              </p>
-          </div>
-
-          <button class="btn btn-link btn-sm" (click)="marcar_nuevo()">[ + ]</button>
-
+              </td>
+              <td>
+              {{ h.monto }}
+              </td>
+          </tr>
+          </table>
       </div>
 
       <div *ngIf="nuevo" style="padding-left: 20px; padding-right: 20px; ">
-      <hr>
-
+      <br>
       <form [formGroup]="treeForm" (ngSubmit)="onSubmit()">
         <p>
-          Id
-          <input type="hidden" formControlName="id">
-          Items
-          <input type="text" formControlName="name" required>
-          Monto:
-          <input type="text" formControlName="monto" disabled>
-          &nbsp;
-          <button class="btn btn-info btn-sm" type="submit"
-          [disabled]="!treeForm.valid">Submit</button>
+
+          <input type="text" formControlName="name" required>&nbsp;
+
+          <button *ngIf="!editTable" class="btn btn-info btn-sm" type="submit"
+          [disabled]="!treeForm.valid">Agregar</button>
+
+          <button *ngIf="editTable" class="btn btn-info btn-sm" type="button"
+          [disabled]="!treeForm.valid" (click)="Update()">Modificar</button>&nbsp;
+
+          <button *ngIf="editTable" class="btn btn-info btn-sm" type="button"
+          [disabled]="!treeForm.valid" (click)="Borrar()">Borrar</button>&nbsp;
+
+          <button class="btn btn-info btn-sm" type="button"
+         (click)="cerrar()">Cerrar</button>
+
         </p>
       </form>
-
-      <!--hr>
-      <p>Form Value: {{ treeForm.value | json }</p>
-      <p>Form Status: {{ treeForm.status }}</p>
-      <p><button (click)="updateTree()">Update</button></p-->
       </div>
   </ng-template>
 
@@ -70,24 +76,23 @@ export class TreeComponent implements OnInit {
   ctx = {numberOfPeople: this.totalPeople};
 
   hijo: Array<any>;
-
+  table = 'items';
+  id = 0;
   treeForm = this.fb.group({
-    id : [''],
-    name: ['', Validators.required],
-    monto: ['', {disabled: true}]
+    name: ['', Validators.required]
   });
 
-  mostra = false;
-  nuevo = false;
+  mostra = false; // muestra listado hijo
+  nuevo = false;  // muestra treeForm
+  editTable = false; // habilita/desabilita boton editar / agregar
 
-  presupuestoId = 0;
-  id = 0;
+  // presupuestoId = 0;
 
-  load(table: string, id: number) {
-    return this.crudService.GetIssue(table, id).subscribe((data: Array<{}>) => {
+  load(padre: string, hijo: string, id: number) {
+    return this.crudService.GetIssue(padre, hijo, id).subscribe((data: Array<{}>) => {
       this.hijo = data;
       if (Object(this.hijo).length > 0) {
-          this.presupuestoId = this.hijo[0].presupuestoId;
+        //  this.presupuestoId = this.hijo[0][padre.slice(0, -1) + 'Id'];
       }
     });
 
@@ -97,40 +102,61 @@ export class TreeComponent implements OnInit {
     this.enviar.emit({name, id});
   }
 
-  public marcar() {
+  public marcar_mostra() {
     this.mostra = this.mostra === true ? false : true;
   }
 
-  public marcar_nuevo() {
+  marcar_nuevo() {
     this.nuevo = this.nuevo === true ? false : true;
+    this.editTable = false;
+    this.updateTree();
   }
 
-  public modifica(h: {}) {
+  modifica(h: Hijo, id: number) {
     console.log(h);
-    this.marcar_nuevo();
+    this.editTable = true;
+    this.nuevo = this.nuevo === true ? false : true;
     this.updateTree(h);
+    this.id = id;
+
   }
 
-  updateTree(h: any) {
-    this.treeForm.patchValue({
-      id : h.id,
-      name: h.name,
-      monto: h.monto
-    });
+  updateTree(h: Hijo = null) {
+    if (h === null) {
+        this.treeForm.patchValue({name: ''});
+    } else {
+        this.treeForm.patchValue({
+        name: h.name,
+        // monto: h.monto
+        });
+    }
   }
+
+
+  Update() {
+    // console.log(`Form : ${JSON.stringify(this.treeForm.value)} | ${this.id}`);
+    this.crudService.Update(this.id, this.treeForm.value, 'items').subscribe(() => this.load('presupuestos', 'items', this.ref));
+  }
+
+  Borrar() {
+      console.log(this.id, this.table);
+      this.crudService.Delete(this.id, 'items').subscribe(() => this.load('presupuestos', 'items', this.ref));
+      this.nuevo = false;
+  }
+
+  cerrar() { this.nuevo = false; }
 
   constructor(private crudService: CrudService, private fb: FormBuilder) { }
 
   onSubmit() {
-
-    const dicio: {} = this.treeForm.value;
-    // this.crudService.Update(dicio['id'], dicio);
-    // console.log(`modifica : ${JSON.stringify(dicio)}`);
-
+    this.editTable = false;
+    this.crudService.adds_hijo('presupuestos', 'items', this.ref , this.treeForm.value).
+    subscribe(() => this.load('presupuestos', 'items', this.ref));
+    this.updateTree({name: ''});
   }
 
   ngOnInit() {
-    this.load('item', this.ref);
+    this.load('presupuestos', 'items', this.ref);
 
   }
 
