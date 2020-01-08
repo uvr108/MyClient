@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Campos } from '../campos';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { Tabla } from '../tabla';
 
-export interface Presupuesto {
-  name: string;
+export interface Hijo {
+  nombre: string;
+  monto: number;
 }
 @Injectable({
   providedIn: 'root'
@@ -25,54 +26,41 @@ httpOptions = {
 
   constructor(private http: HttpClient) { }
 
-// POST
-CreateIssue(data): Observable<{}> {
-  return this.http.post<{}>(this.baseurl + '/api/presupuesto', JSON.stringify(data), this.httpOptions)
-  .pipe(
-    retry(1),
-    catchError(this.errorHandl)
-  );
-}
-
 // GET
-GetIssue(table, id): Observable<[{}]> {
-  return this.http.get<[{}]>(this.baseurl + '/api/presupuestos/' + id + '/items')
+
+GetIssue(padre: string, hijo: string, id: number): Observable<[{}]> {
+  return this.http.get<[{}]>(this.baseurl + '/api/' + padre + '/' + id + '/' +  hijo)
   .pipe(
     retry(1),
     catchError(this.errorHandl)
   );
 }
 
-/*
-GetIssues(table: string): Observable<Array<{}>> {
-  return this.http.get<Array<{}>>(this.baseurl + '/api/' + table)
-  .pipe(
-    retry(1),
-    catchError(this.errorHandl)
-  );
-}
-*/
-
-getList(): Observable<Presupuesto[]> {
-  return this.http.get<Presupuesto[]>(this.baseurl + '/api/presupuestos')
+getList(): Observable<Tabla[]> {
+  return this.http.get<Tabla[]>(this.baseurl + '/api/presupuestos')
     .pipe(
       retry(1),
       catchError(this.errorHandl)
     );
 }
 
-adds(presu: Presupuesto): Observable<Presupuesto> {
-  return this.http.post<Presupuesto>(this.baseurl + '/api/presupuesto', presu, this.httpOptions);
+adds(tabla: Tabla, table: string): Observable<Tabla> {
+  return this.http.post<Tabla>(this.baseurl + '/api/' + table.slice(0, -1), tabla, this.httpOptions);
+}
+
+adds_hijo(padre: string, hijo: string, id: number,  hjo: Hijo): Observable<Hijo> {
+  return this.http.post<Hijo>(this.baseurl + '/api/' + padre + '/' + id + '/' + hijo, hjo , this.httpOptions);
+
 }
 
 // PUT
-Update(id: number, presu: Presupuesto): Observable<Presupuesto> {
-  return this.http.put<Presupuesto>(this.baseurl + '/api/presupuesto/' + id, presu, this.httpOptions);
+Update(id: number, tab: Tabla, table: string): Observable<Tabla> {
+  return this.http.put<Tabla>(this.baseurl + '/api/' + table.slice(0, -1) + '/' + id, tab, this.httpOptions);
 }
 
 // DELETE
-Delete(id: number) {
-  return this.http.delete<Presupuesto>(this.baseurl + '/api/presupuesto/' + id, this.httpOptions);
+Delete(id: number, table: string) {
+  return this.http.delete<Tabla>(this.baseurl + '/api/'  + table.slice(0, -1) + '/' + id, this.httpOptions);
   /*
   .pipe(
     retry(1),
