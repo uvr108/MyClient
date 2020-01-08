@@ -1,15 +1,11 @@
 import { Component, OnInit, ViewChild , AfterViewInit} from '@angular/core';
 import { CrudService } from '../../shared/crud.service';
 import { ActivatedRoute } from '@angular/router';
-import { CAMPOS } from '../../campos';
+import { Tabla } from '../../tabla';
 import { FormBuilder, Validators } from '@angular/forms';
 
 // vscode://github.vscode-pull-request-github/did-authenticate?
 // windowId=1&code=b653a26be7b08d688288&state=a68afe53-d54b-46a5-8668-3c9b9bf6908e
-
-export interface Presupuesto {
-  name: string;
-}
 
 @Component({
   selector: 'app-issue-list',
@@ -27,69 +23,72 @@ campos: {};
 
 nuevo = false;
 
-editPresupuesto = true;
-presupuestos: Presupuesto[];
+editTabla = true;
+tabla: Tabla[];
 
-listForm = this.fb.group({
+lgroup = {
   id: [''],
   name: ['', Validators.required]
-});
+};
+
+listForm = this.fb.group(this.lgroup);
 
 enviar(msg: object) {
   if (!this.nuevo) { this.marcar_nuevo(); }
-  this.updatePresupuesto(msg);
-  this.editPresupuesto = true;
-  // console.log(`mostra en padre [hijo]: ${JSON.stringify(msg)} | ${this.nuevo}`);
+  this.updateTabla(msg);
+  this.editTabla = true;
 }
 
 cerrar() { this.nuevo = false; }
 
-public marcar_nuevo() {
-  this.updatePresupuesto({'nombre': ''});
+marcar_nuevo() {
+  this.updateTabla();
   this.nuevo = this.nuevo === true ? false : true;
-  this.editPresupuesto = false;
+  this.editTabla = false;
 }
 
-updatePresupuesto(msg: object) {
-  // console.log(`msg : ${JSON.stringify(msg['name'])}`);
-  this.listForm.patchValue({
-    id : msg['id'],
-    name: msg['name']
-  });
-}
+  updateTabla(msg: object = null) {
+    if (msg === null) {
+        this.listForm.patchValue({id : '', name: ''});
+        console.log('Por aqui');
+    } else {
+        this.listForm.patchValue({id : msg['id'], name: msg['name']});
+        console.log('Por aca');
+    }
+  }
 
-ngOnInit() {
+  ngOnInit() {
   this.route
     .data
     // tslint:disable-next-line: no-string-literal
     .subscribe(v => this.table = v['table']);
-  this.campos = CAMPOS;
+  // this.campos = CAMPOS;
   this.load();
 }
 
 // agregar
 
-onSubmit() {
-  let presu: Presupuesto = this.listForm.value;
-  const add = this.crudService
-    .adds(presu)
-    .subscribe(() => this.load());
+  onSubmit() {
+  const tab: Tabla = this.listForm.value;
+  this.crudService
+    .adds(tab, this.table)
+    .subscribe(() => { this.load(); this.updateTabla(); } );
 }
 // editar
 
-editar() {
+  editar() {
   const list = this.listForm.value;
   const id = list['id'];
-  const presu = {name : list['name']};
+  const tab = {name : list['name']};
   // console.log(`Editar : ${id} | ${JSON.stringify(presu)}`);
   this.crudService.
-    Update(id, presu).
+    Update(id, tab, this.table).
     subscribe(() => this.load());
 }
 
 // Listar
 
-load(): void {
+  load(): void {
   this.crudService.getList().subscribe(data => {
   this.padre = data;
   });
@@ -97,18 +96,19 @@ load(): void {
 
 // borrar
 
-borrar() {
+  borrar() {
   const list = this.listForm.value;
   const id = list['id'];
   console.log(`Borrar : ${JSON.stringify(this.listForm.value)}`);
-  this.crudService.Delete(id).subscribe(() => this.load());
+  this.crudService.Delete(id, this.table).subscribe(() => this.load());
+
   this.cerrar();
 }
 
-ngAfterViewInit() {
+  ngAfterViewInit() {
 }
 
-constructor(
+  constructor(
   private crudService: CrudService,
   private route: ActivatedRoute,
   private fb: FormBuilder
@@ -117,7 +117,7 @@ constructor(
 
   // Delete issue
 
-deleteIusse(data) {
+  deleteIusse(data) {
 /*
     const index: any = this.IssuesList.map(x: User => { return x.name}).indexOf(data.username);
     return this.crudService.DeleteIssue(data.id).subscribe(res => {
