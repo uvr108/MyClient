@@ -16,25 +16,23 @@ export interface Hijo {
       // <div> Hay {{ peopleCounter }} personas </div>
       -->
       <button class="btn btn-link" (click)="marcar_mostra()">*</button>
-      <button class="btn btn-link" (click)="mensage(name, ref)">{{name}}</button>
+      <button class="btn btn-link" (click)="mensage(name, ref)">{{out | json}}</button>
       <div *ngIf="mostra" style="padding-left: 25px;">
-          <h4>Items</h4>
+          <h4>{{table}}</h4>
           <table>
           <tr><td>
           <button class="btn btn-link btn-sm" (click)="marcar_nuevo()">+</button>
-          </td><td>item</td><td>monto</td></tr>
-          <tr *ngFor="let h of hijo">
+          </td><td>{{campos | json}}</td></tr>
+          <tr *ngFor="let h of hijo; index as Id">
               <td>
-              <a href="{{ h.id }}"> * </a>
+              <a routerLink="/subitem/{{ h.id }}">sss * </a>
               </td>
               <td>
               <button type="button" class="btn btn-link btn-sm"
-              (click)="modifica(h, h.id)">{{h.name}}
+              (click)="modifica(h, h.id)">{{detalle[Id] | json}}
               </button>
               </td>
-              <td>
-              {{ h.monto }}
-              </td>
+             
           </tr>
           </table>
       </div>
@@ -60,6 +58,7 @@ export interface Hijo {
 
         </p>
       </form>
+      <app-issue-list></app-issue-list>
       </div>
   </ng-template>
 
@@ -70,6 +69,8 @@ export class TreeComponent implements OnInit {
 
   @Input() ref: number;
   @Input() name: string;
+  @Input() padre: {};
+  @Input() campos: Array<string>;
   @Output() enviar = new EventEmitter<object>();
 
   totalPeople = 4;
@@ -85,14 +86,23 @@ export class TreeComponent implements OnInit {
   mostra = false; // muestra listado hijo
   nuevo = false;  // muestra treeForm
   editTable = false; // habilita/desabilita boton editar / agregar
+  detalle: Array<any>;
 
   // presupuestoId = 0;
 
+  
   load(padre: string, hijo: string, id: number) {
+    let out = [];
     return this.crudService.GetIssue(padre, hijo, id).subscribe((data: Array<{}>) => {
       this.hijo = data;
+
       if (Object(this.hijo).length > 0) {
-        //  this.presupuestoId = this.hijo[0][padre.slice(0, -1) + 'Id'];
+        let out2=[];
+        this.hijo.forEach((a) => 
+        {
+          
+          this.campos.forEach((b: any) => out2.push(a[b])), out.push(out2), out2=[]
+        }), this.detalle = out, console.log(JSON.stringify(out));
       }
     });
 
@@ -135,12 +145,12 @@ export class TreeComponent implements OnInit {
 
   Update() {
     // console.log(`Form : ${JSON.stringify(this.treeForm.value)} | ${this.id}`);
-    this.crudService.Update(this.id, this.treeForm.value, 'items').subscribe(() => this.load('presupuestos', 'items', this.ref));
+    this.crudService.Update(this.id, this.treeForm.value, this.table).subscribe(() => this.load('presupuestos', this.table, this.ref));
   }
 
   Borrar() {
       console.log(this.id, this.table);
-      this.crudService.Delete(this.id, 'items').subscribe(() => this.load('presupuestos', 'items', this.ref));
+      this.crudService.Delete(this.id, this.table).subscribe(() => this.load('presupuestos', this.table, this.ref));
       this.nuevo = false;
   }
 
@@ -150,14 +160,18 @@ export class TreeComponent implements OnInit {
 
   onSubmit() {
     this.editTable = false;
-    this.crudService.adds_hijo('presupuestos', 'items', this.ref , this.treeForm.value).
-    subscribe(() => this.load('presupuestos', 'items', this.ref));
+    this.crudService.adds_hijo('presupuestos', this.table, this.ref , this.treeForm.value).
+    subscribe(() => this.load('presupuestos', this.table, this.ref));
     this.updateTree({name: ''});
   }
 
-  ngOnInit() {
-    this.load('presupuestos', 'items', this.ref);
+  out = [];
 
+  ngOnInit() {
+    
+    this.campos.forEach((a) => this.out.push(this.padre[a]));
+    this.load('presupuestos', this.table, this.ref);
+    // console.log(`padre: ${this.padre['name']} | ${this.padre['monto']}`);
   }
 
 }
