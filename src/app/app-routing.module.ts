@@ -9,6 +9,7 @@ const routes: Routes = [
   {path : 'items', component: IssueListComponent, data: {table: 'items'}},
   {path : 'item/:id', component: TreeComponent},
   {path : 'subitems', component: IssueListComponent, data: {table: 'subitems'}},
+  {path : 'subitem/:id', component: IssueListComponent, data: {table: 'subitems'}},
   {path : 'tree', component: TreeComponent, data: {}}
 ];
 
