@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild , AfterViewInit} from '@angular/core';
 import { CrudService } from '../../shared/crud.service';
 import { ActivatedRoute } from '@angular/router';
-import { Tabla } from '../../tabla';
+import { Presupuesto } from '../../tabla';
 import { FormBuilder, Validators } from '@angular/forms';
 
 // vscode://github.vscode-pull-request-github/did-authenticate?
@@ -19,12 +19,13 @@ padre: any = [];
 hijo: any = [];
 
 table: string;
-campos: {};
+Tabla: Array<string>;
+// campos: {};
 
 nuevo = false;
-
 editTabla = true;
-tabla: Tabla[];
+
+
 
 lgroup = {
   id: [''],
@@ -32,6 +33,7 @@ lgroup = {
 };
 
 listForm = this.fb.group(this.lgroup);
+
 
 enviar(msg: object) {
   if (!this.nuevo) { this.marcar_nuevo(); }
@@ -69,7 +71,7 @@ marcar_nuevo() {
 // agregar
 
   onSubmit() {
-  const tab: Tabla = this.listForm.value;
+  const tab: {} = this.listForm.value;
   this.crudService
     .adds(tab, this.table)
     .subscribe(() => { this.load(); this.updateTabla(); } );
@@ -79,7 +81,7 @@ marcar_nuevo() {
   editar() {
   const list = this.listForm.value;
   const id = list['id'];
-  const tab = {name : list['name']};
+  const tab = {name : list['name'], monto: list['monto']};
   // console.log(`Editar : ${id} | ${JSON.stringify(presu)}`);
   this.crudService.
     Update(id, tab, this.table).
@@ -89,7 +91,9 @@ marcar_nuevo() {
 // Listar
 
   load(): void {
-  this.crudService.getList().subscribe(data => {
+  this.Tabla = this.table === "presupuestos" ? Presupuesto : null;
+  console.log(this.table, this.Tabla);
+  this.crudService.getList(this.table).subscribe(data => {
   this.padre = data;
   });
 }
@@ -117,13 +121,5 @@ marcar_nuevo() {
 
   // Delete issue
 
-  deleteIusse(data) {
-/*
-    const index: any = this.IssuesList.map(x: User => { return x.name}).indexOf(data.username);
-    return this.crudService.DeleteIssue(data.id).subscribe(res => {
-    this.IssuesList.splice(index, 1);
-      console.log('Issue deleted!');
-    });
-*/
-  }
+ 
 }
