@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { Tabla } from '../tabla';
+// import { Tabla } from '../tabla';
 
 export interface Hijo {
   nombre: string;
@@ -36,16 +36,16 @@ GetIssue(padre: string, hijo: string, id: number): Observable<[{}]> {
   );
 }
 
-getList(): Observable<Tabla[]> {
-  return this.http.get<Tabla[]>(this.baseurl + '/api/presupuestos')
+getList(table: string): Observable<Array<{}>> {
+  return this.http.get<any>(this.baseurl + '/api/' + table)
     .pipe(
       retry(1),
       catchError(this.errorHandl)
     );
 }
 
-adds(tabla: Tabla, table: string): Observable<Tabla> {
-  return this.http.post<Tabla>(this.baseurl + '/api/' + table.slice(0, -1), tabla, this.httpOptions);
+adds(tabla: {}, table: string): Observable<{}> {
+  return this.http.post<any>(this.baseurl + '/api/' + table.slice(0, -1), tabla, this.httpOptions);
 }
 
 adds_hijo(padre: string, hijo: string, id: number,  hjo: Hijo): Observable<Hijo> {
@@ -54,13 +54,13 @@ adds_hijo(padre: string, hijo: string, id: number,  hjo: Hijo): Observable<Hijo>
 }
 
 // PUT
-Update(id: number, tab: Tabla, table: string): Observable<Tabla> {
-  return this.http.put<Tabla>(this.baseurl + '/api/' + table.slice(0, -1) + '/' + id, tab, this.httpOptions);
+Update(id: number, tab: {}, table: string): Observable<{}> {
+  return this.http.put<{}>(this.baseurl + '/api/' + table.slice(0, -1) + '/' + id, tab, this.httpOptions);
 }
 
 // DELETE
 Delete(id: number, table: string) {
-  return this.http.delete<Tabla>(this.baseurl + '/api/'  + table.slice(0, -1) + '/' + id, this.httpOptions);
+  return this.http.delete<{}>(this.baseurl + '/api/'  + table.slice(0, -1) + '/' + id, this.httpOptions);
   /*
   .pipe(
     retry(1),
