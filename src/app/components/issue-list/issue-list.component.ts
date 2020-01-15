@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild , AfterViewInit} from '@angular/core';
 import { CrudService } from '../../shared/crud.service';
 import { ActivatedRoute } from '@angular/router';
-import { Presupuesto } from '../../tabla';
+import { Presupuesto, Item, Subitem } from '../../tabla';
 import { FormBuilder, Validators } from '@angular/forms';
 
 // vscode://github.vscode-pull-request-github/did-authenticate?
@@ -91,10 +91,15 @@ marcar_nuevo() {
 // Listar
 
   load(): void {
-  this.Tabla = this.table === "presupuestos" ? Presupuesto : null;
-  console.log(this.table, this.Tabla);
-  this.crudService.getList(this.table).subscribe(data => {
-  this.padre = data;
+
+      if (this.table === "presupuestos") { this.Tabla = Presupuesto; }
+      else if (this.table === "items") { this.Tabla = Item; }
+      else if (this.table === "subitems") { this.Tabla = Subitem; }
+
+      console.log(this.table, this.Tabla);
+      this.crudService.getList(this.table).subscribe(data => {
+      this.padre = data;
+      
   });
 }
 
