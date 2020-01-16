@@ -1,0 +1,41 @@
+<div>
+<table>  
+<tr class="ng-template" style="padding-left: 10px;">
+    <h4>{{ table }} | [{{index}}]</h4>
+  
+    <div style="padding-left: 15px; padding-top: 0px; padding-bottom: 0px;">
+    <table>
+    <tr><td><button type="button"
+      class="btn btn-link btn-sm"
+      (click)="marcar_nuevo()">(+)</button></td><td>[{{ Tabla }}]</td></tr>
+    <tr *ngFor="let p of padre; index as Id">
+      <td colspan="2">
+        <app-tree [ref]="p.id" 
+                  [name]="p.name" 
+                  [padre]="padre[Id]"
+                  [index]="index"
+                  (enviar) = "enviar($event)">
+        </app-tree>
+      </td>
+    </tr>
+    </table>
+    <div *ngIf="nuevo" style="padding-left: 20px; padding-right: 20px; ">
+        <br>
+        <form [formGroup]="listForm" (ngSubmit)="onSubmit()">
+        <p>
+
+            <input *ngIf="editTabla" type="hidden" formControlName="id">
+            <input type="text" formControlName="name" required>&nbsp;
+            <button *ngIf="!editTabla" class="btn btn-info btn-sm" type="submit" [disabled]="!listForm.valid">Agregar</button>&nbsp;
+            <button *ngIf="editTabla" class="btn btn-info btn-sm" type="button" (click)="editar()">xEditar</button>&nbsp;
+            <button *ngIf="editTabla" class="btn btn-info btn-sm" type="button" (click)="borrar()">Borrar</button>&nbsp;
+            <button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Cerrar</button>&nbsp;
+        </p>
+        </form>
+    </div>
+</div>
+<!--
+<button type="button" class="btn btn-success btn-sm move-right" [routerLink]="['/edit-issue/', issues.id]">Edit</button>
+<button type="button" class="btn btn-danger btn-sm" (click)="deleteIusse(issues)">Remove</button>
+-->
+
