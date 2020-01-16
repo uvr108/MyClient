@@ -1,6 +1,7 @@
 import {Component,  Input, OnInit, Output, EventEmitter} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { CrudService } from '../../shared/crud.service';
+import { NAVEGA } from '../../tabla';
 
 export interface Hijo {
   name: string;
@@ -12,20 +13,27 @@ export interface Hijo {
   template: `
 
   <ng-template #mostraTemplate let-peopleCounter="numberOfPeople">
-      <!--
-      // <div> Hay {{ peopleCounter }} personas </div>
-      -->
-      <button class="btn btn-link" (click)="marcar_mostra()">*</button>
+      
+      <!--div> Hay {{ peopleCounter }} personas </div-->
+      
+      <!--p>{{ref}}</p>
+      <p>{{name}}</p>
+      <p>{{padre | json}}</p>
+      <p>{{campos}}</p-->
+
+      <button class="btn btn-link" (click)="marcar_mostra()">[*]</button>
       <button class="btn btn-link" (click)="mensage(name, ref)">{{out | json}}</button>
-      <div *ngIf="mostra" style="padding-left: 25px;">
-          <h4>{{table}}</h4>
+      <!--div *ngIf="mostra" style="padding-left: 25px;">
+          <h4>***{{table}}</h4>
           <table>
           <tr><td>
-          <button class="btn btn-link btn-sm" (click)="marcar_nuevo()">+</button>
+          <button class="btn btn-link btn-sm" (click)="marcar_nuevo()">(+)</button>
           </td><td>{{campos | json}}</td></tr>
           <tr *ngFor="let h of hijo; index as Id">
               <td>
-              <a routerLink="/subitem/{{ h.id }}">sss * </a>
+              <div>
+              <a [routerLink]="['/subitems/']" >[***]</a>
+              </div>
               </td>
               <td>
               <button type="button" class="btn btn-link btn-sm"
@@ -35,7 +43,7 @@ export interface Hijo {
              
           </tr>
           </table>
-      </div>
+      </div-->
 
       <div *ngIf="nuevo" style="padding-left: 20px; padding-right: 20px; ">
       <br>
@@ -58,8 +66,9 @@ export interface Hijo {
 
         </p>
       </form>
-      <app-issue-list></app-issue-list>
       </div>
+
+       
   </ng-template>
 
   <ng-container *ngTemplateOutlet="mostraTemplate;context:ctx"></ng-container>
@@ -70,7 +79,7 @@ export class TreeComponent implements OnInit {
   @Input() ref: number;
   @Input() name: string;
   @Input() padre: {};
-  @Input() campos: Array<string>;
+  @Input() index: number;
   @Output() enviar = new EventEmitter<object>();
 
   totalPeople = 4;
@@ -88,6 +97,7 @@ export class TreeComponent implements OnInit {
   editTable = false; // habilita/desabilita boton editar / agregar
   detalle: Array<any>;
 
+  campos = NAVEGA;
   // presupuestoId = 0;
 
   
@@ -101,7 +111,7 @@ export class TreeComponent implements OnInit {
         this.hijo.forEach((a) => 
         {
           
-          this.campos.forEach((b: any) => out2.push(a[b])), out.push(out2), out2=[]
+          this.campos[this.index].forEach((b: any) => out2.push(a[b])), out.push(out2), out2=[]
         }), this.detalle = out, console.log(JSON.stringify(out));
       }
     });
@@ -123,7 +133,7 @@ export class TreeComponent implements OnInit {
   }
 
   modifica(h: Hijo, id: number) {
-    console.log(h);
+    // console.log(h);
     this.editTable = true;
     this.nuevo = this.nuevo === true ? false : true;
     this.updateTree(h);
@@ -149,7 +159,7 @@ export class TreeComponent implements OnInit {
   }
 
   Borrar() {
-      console.log(this.id, this.table);
+      // console.log(this.id, this.table);
       this.crudService.Delete(this.id, this.table).subscribe(() => this.load('presupuestos', this.table, this.ref));
       this.nuevo = false;
   }
@@ -159,17 +169,21 @@ export class TreeComponent implements OnInit {
   constructor(private crudService: CrudService, private fb: FormBuilder) { }
 
   onSubmit() {
+
     this.editTable = false;
+    // console.log(`treeForm : ${JSON.stringify(this.treeForm.value)}`);
+    
     this.crudService.adds_hijo('presupuestos', this.table, this.ref , this.treeForm.value).
     subscribe(() => this.load('presupuestos', this.table, this.ref));
     this.updateTree({name: ''});
+    
   }
 
   out = [];
 
   ngOnInit() {
-    
-    this.campos.forEach((a) => this.out.push(this.padre[a]));
+    // console.log(`campos : ${JSON.stringify(this.campos[this.index])} | ${this.index}`);
+    this.campos[this.index].forEach((a) => this.out.push(this.padre[a]));
     this.load('presupuestos', this.table, this.ref);
     // console.log(`padre: ${this.padre['name']} | ${this.padre['monto']}`);
   }
