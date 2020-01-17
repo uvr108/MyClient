@@ -1,5 +1,5 @@
-<div>
-<table>  
+<div style="padding-left: 15px; padding-right: 15px;">
+  
 <tr class="ng-template" style="padding-left: 10px;">
     <h4>{{ table }} | [{{index}}]</h4>
   
@@ -7,13 +7,15 @@
     <table>
     <tr><td><button type="button"
       class="btn btn-link btn-sm"
-      (click)="marcar_nuevo()">(+)</button></td><td>[{{ Tabla }}]</td></tr>
+      (click)="marcar_nuevo()">(+)</button>&nbsp;[{{ Tabla }}]</td></tr>
     <tr *ngFor="let p of padre; index as Id">
       <td colspan="2">
         <app-tree [ref]="p.id" 
                   [name]="p.name" 
                   [padre]="padre[Id]"
                   [index]="index"
+                  [components]="components"
+                  [listForm]="listForm"
                   (enviar) = "enviar($event)">
         </app-tree>
       </td>
@@ -22,15 +24,32 @@
     <div *ngIf="nuevo" style="padding-left: 20px; padding-right: 20px; ">
         <br>
         <form [formGroup]="listForm" (ngSubmit)="onSubmit()">
-        <p>
-
+      
             <input *ngIf="editTabla" type="hidden" formControlName="id">
-            <input type="text" formControlName="name" required>&nbsp;
-            <button *ngIf="!editTabla" class="btn btn-info btn-sm" type="submit" [disabled]="!listForm.valid">Agregar</button>&nbsp;
-            <button *ngIf="editTabla" class="btn btn-info btn-sm" type="button" (click)="editar()">xEditar</button>&nbsp;
-            <button *ngIf="editTabla" class="btn btn-info btn-sm" type="button" (click)="borrar()">Borrar</button>&nbsp;
-            <button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Cerrar</button>&nbsp;
-        </p>
+            
+            <table><tr>
+              <span *ngFor="let c of components">
+              <th>
+                  <div *ngIf="!c[2]; else required">
+                      <input type="{{c[0]}}" formControlName="{{c[1]}}">&nbsp;
+                  </div>
+
+                  <ng-template #required>
+                      <input type="{{c[0]}}" formControlName="{{c[1]}}" required>&nbsp;
+                  </ng-template>
+                         
+              
+              </th>
+              </span>
+
+        <th>
+          <button *ngIf="!editTabla" class="btn btn-info btn-sm" type="submit" [disabled]="!listForm.valid">Agregar</button>&nbsp;
+          <button *ngIf="editTabla" class="btn btn-info btn-sm" type="button" (click)="editar()">Editar</button>&nbsp;
+          <button *ngIf="editTabla" class="btn btn-info btn-sm" type="button" (click)="borrar()">Borrar</button>&nbsp;
+          <button class="btn btn-info btn-sm" type="button" (click)="cerrar()">Cerrar</button>&nbsp;  
+        </th>    
+        </tr>
+        </table> 
         </form>
     </div>
 </div>
