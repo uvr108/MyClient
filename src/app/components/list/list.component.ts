@@ -18,9 +18,11 @@ hijo: any = [];
 table: string;
 Tabla: Array<string>;
 navega: Array<Array<string>> = NAVEGA;
+// tablas: Array<string> = TABLAS;
 index:number;
 nuevo = false;
 editTabla = true;
+components: Array<Array<string|boolean>>;
 
 /*
 lgroup = {
@@ -62,14 +64,18 @@ carga_index() : number {
     if (this.table === "presupuestos") { 
       index = 0;
       lgroup = { 
-        name: ['', Validators.required] 
-      } 
+        id: [''],
+        name: ['', Validators.required]
+      }
+      this.components = [['hidden','id',''],['text','name','yes']]; 
     }
     else if (this.table === "items") { 
       index = 1;
       lgroup = { 
+        id: [''],
         name: ['', Validators.required] 
-      }  
+      }
+      this.components = [['hidden','id',''],['text','name','yes']]; 
     }
     else if (this.table === "subitems") { 
       index = 2;
@@ -77,6 +83,7 @@ carga_index() : number {
           name: ['', Validators.required],
           monto: ['', Validators.required]
       }
+      this.components = [['hidden','id',''],['text','name','yes'],['text','monto','yes']]; 
     }
 
     this.Tabla = this.navega[index];
@@ -95,16 +102,14 @@ cargar_form() {
 }
 
 ngOnInit() {
+
   this.route
     .data
     .subscribe(v => this.table = v['table']);
   
   this.index = this.carga_index();  
-  // console.log(`index : ${this.index}`);
-  // console.log(`table : ${this.table}`);
-  // console.log(`Tabla : ${JSON.stringify(this.Tabla)}`);
   this.load();
-  // console.log(`padrexx : ${JSON.stringify(this.padre)}`);
+
 }
 
 load(): void {
@@ -131,10 +136,9 @@ load(): void {
   editar() {
   const list = this.listForm.value;
   const id = list['id'];
-  const tab = {name : list['name'], monto: list['monto']};
-  // console.log(`Editar : ${id} | ${JSON.stringify(presu)}`);
+  
   this.crudService.
-    Update(id, tab, this.table).
+    Update(id, this.listForm.value, this.table).
     subscribe(() => this.load());
 }
 
@@ -144,7 +148,7 @@ load(): void {
   borrar() {
       const list = this.listForm.value;
       const id = list['id'];
-      // console.log(`Borrar : ${JSON.stringify(this.listForm.value)}`);
+      
       this.crudService.Delete(id, this.table).subscribe(() => this.load());
 
       this.cerrar();
