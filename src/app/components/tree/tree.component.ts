@@ -1,7 +1,7 @@
 import {Component,  Input, OnInit, Output, EventEmitter} from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { CrudService } from '../../shared/crud.service';
-import { NAVEGA } from '../../tabla';
+import { NAVEGA, TABLAS } from '../../tabla';
 
 export interface Hijo {
   name: string;
@@ -19,47 +19,60 @@ export interface Hijo {
       <!--p>{{ref}}</p>
       <p>{{name}}</p>
       <p>{{padre | json}}</p>
-      <p>{{campos}}</p-->
+      <p>[{{campos[index]}}]</p-->
 
       <button class="btn btn-link" (click)="marcar_mostra()">[*]</button>
       <button class="btn btn-link" (click)="mensage(name, ref)">{{out | json}}</button>
-      <!--div *ngIf="mostra" style="padding-left: 25px;">
-          <h4>***{{table}}</h4>
+      <div *ngIf="mostra" style="padding-left: 25px;">
+          <h4>{{tablas[index+1]}}</h4>
           <table>
           <tr><td>
           <button class="btn btn-link btn-sm" (click)="marcar_nuevo()">(+)</button>
-          </td><td>{{campos | json}}</td></tr>
+          </td><td>{{campos[index+1] | json}}</td></tr>
           <tr *ngFor="let h of hijo; index as Id">
               <td>
               <div>
-              <a [routerLink]="['/subitems/']" >[***]</a>
+              <a [routerLink]="['/**/']" >[*]</a>
               </div>
               </td>
               <td>
               <button type="button" class="btn btn-link btn-sm"
-              (click)="modifica(h, h.id)">{{detalle[Id] | json}}
+              (click)="modifica(h, h.id)"> {{detalle[Id] | json}}
               </button>
               </td>
-             
           </tr>
           </table>
-      </div-->
+      </div>
 
       <div *ngIf="nuevo" style="padding-left: 20px; padding-right: 20px; ">
       <br>
-      <form [formGroup]="treeForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="listForm" (ngSubmit)="onSubmit()">
         <p>
 
-          <input type="text" formControlName="name" required>&nbsp;
+          <span *ngFor="let c of components">
+              
+                  <div *ngIf="!c[2]; else required">
+                      <input type="{{c[0]}}" formControlName="{{c[1]}}">&nbsp;
+                  </div>
+
+                  <ng-template #required>
+                      <input type="{{c[0]}}" formControlName="{{c[1]}}" required>&nbsp;
+                  </ng-template>
+                         
+              
+              
+          </span>
+
+        
 
           <button *ngIf="!editTable" class="btn btn-info btn-sm" type="submit"
-          [disabled]="!treeForm.valid">Agregar</button>
+          [disabled]="!listForm.valid">Agregar</button>
 
           <button *ngIf="editTable" class="btn btn-info btn-sm" type="button"
-          [disabled]="!treeForm.valid" (click)="Update()">Modificar</button>&nbsp;
+          [disabled]="!listForm.valid" (click)="Update()">Modificar</button>&nbsp;
 
           <button *ngIf="editTable" class="btn btn-info btn-sm" type="button"
-          [disabled]="!treeForm.valid" (click)="Borrar()">Borrar</button>&nbsp;
+          [disabled]="!listForm.valid" (click)="Borrar()">Borrar</button>&nbsp;
 
           <button class="btn btn-info btn-sm" type="button"
          (click)="cerrar()">Cerrar</button>
@@ -80,17 +93,22 @@ export class TreeComponent implements OnInit {
   @Input() name: string;
   @Input() padre: {};
   @Input() index: number;
+  @Input() listForm: FormGroup;
+  @Input() components: Array<Array<string|boolean>>;
   @Output() enviar = new EventEmitter<object>();
 
   totalPeople = 4;
   ctx = {numberOfPeople: this.totalPeople};
 
   hijo: Array<any>;
-  table = 'items';
+  // table = 'items';
   id = 0;
+
+  /*
   treeForm = this.fb.group({
     name: ['', Validators.required]
   });
+  */
 
   mostra = false; // muestra listado hijo
   nuevo = false;  // muestra treeForm
@@ -98,12 +116,14 @@ export class TreeComponent implements OnInit {
   detalle: Array<any>;
 
   campos = NAVEGA;
+  tablas = TABLAS;
   // presupuestoId = 0;
 
   
-  load(padre: string, hijo: string, id: number) {
+  load(id: number) {
     let out = [];
-    return this.crudService.GetIssue(padre, hijo, id).subscribe((data: Array<{}>) => {
+    // console.log(this.tablas[this.index], this.tablas[this.index+1]);
+    return this.crudService.GetIssue(this.tablas[this.index], this.tablas[this.index+1], id).subscribe((data: Array<{}>) => {
       this.hijo = data;
 
       if (Object(this.hijo).length > 0) {
@@ -111,8 +131,8 @@ export class TreeComponent implements OnInit {
         this.hijo.forEach((a) => 
         {
           
-          this.campos[this.index].forEach((b: any) => out2.push(a[b])), out.push(out2), out2=[]
-        }), this.detalle = out, console.log(JSON.stringify(out));
+          this.campos[this.index+1].forEach((b: any) => out2.push(a[b])), out.push(out2), out2=[]
+        }), this.detalle = out, console.log(`out : ${JSON.stringify(out)}`);
       }
     });
 
@@ -143,9 +163,9 @@ export class TreeComponent implements OnInit {
 
   updateTree(h: Hijo = null) {
     if (h === null) {
-        this.treeForm.patchValue({name: ''});
+        this.listForm.patchValue({name: ''});
     } else {
-        this.treeForm.patchValue({
+        this.listForm.patchValue({
         name: h.name,
         // monto: h.monto
         });
@@ -154,13 +174,13 @@ export class TreeComponent implements OnInit {
 
 
   Update() {
-    // console.log(`Form : ${JSON.stringify(this.treeForm.value)} | ${this.id}`);
-    this.crudService.Update(this.id, this.treeForm.value, this.table).subscribe(() => this.load('presupuestos', this.table, this.ref));
+    console.log(`Form : ${JSON.stringify(this.listForm.value)} | ${this.id} | ${this.index+1}`);
+    this.crudService.Update(this.id, this.listForm.value, this.tablas[this.index+1]).subscribe(() => this.load(this.ref));
   }
 
   Borrar() {
       // console.log(this.id, this.table);
-      this.crudService.Delete(this.id, this.table).subscribe(() => this.load('presupuestos', this.table, this.ref));
+      this.crudService.Delete(this.id, this.tablas[this.index+1]).subscribe(() => this.load(this.ref));
       this.nuevo = false;
   }
 
@@ -173,8 +193,8 @@ export class TreeComponent implements OnInit {
     this.editTable = false;
     // console.log(`treeForm : ${JSON.stringify(this.treeForm.value)}`);
     
-    this.crudService.adds_hijo('presupuestos', this.table, this.ref , this.treeForm.value).
-    subscribe(() => this.load('presupuestos', this.table, this.ref));
+    this.crudService.adds_hijo(this.tablas[this.index], this.tablas[this.index+1], this.ref , this.listForm.value).
+    subscribe(() => this.load(this.ref));
     this.updateTree({name: ''});
     
   }
@@ -184,8 +204,9 @@ export class TreeComponent implements OnInit {
   ngOnInit() {
     // console.log(`campos : ${JSON.stringify(this.campos[this.index])} | ${this.index}`);
     this.campos[this.index].forEach((a) => this.out.push(this.padre[a]));
-    this.load('presupuestos', this.table, this.ref);
-    // console.log(`padre: ${this.padre['name']} | ${this.padre['monto']}`);
+    this.load(this.ref);
+    
+    console.log(`index: ${this.index}`);
   }
 
 }
