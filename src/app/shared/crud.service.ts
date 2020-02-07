@@ -28,6 +28,8 @@ httpOptions = {
 
 // GET
 
+Mostra() { console.log('Mierdadadadad')}
+
 GetIssue(padre: string, hijo: string, id: number): Observable<[{}]> {
   return this.http.get<[{}]>(this.baseurl + '/api/' + padre + '/' + id + '/' +  hijo)
   .pipe(
