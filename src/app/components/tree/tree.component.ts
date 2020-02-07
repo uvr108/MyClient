@@ -14,13 +14,6 @@ export interface Hijo {
 
   <ng-template #mostraTemplate let-peopleCounter="numberOfPeople">
       
-      <!--div> Hay {{ peopleCounter }} personas </div-->
-      
-      <!--p>{{ref}}</p>
-      <p>{{name}}</p>
-      <p>{{padre | json}}</p>
-      <p>[{{campos[index]}}]</p-->
-
       <button class="btn btn-link" (click)="marcar_mostra()">[*]</button>
       <button class="btn btn-link" (click)="mensage(name, ref)">{{out | json}}</button>
       <div *ngIf="mostra" style="padding-left: 25px;">
@@ -32,7 +25,8 @@ export interface Hijo {
           <tr *ngFor="let h of hijo; index as Id">
               <td>
               <div>
-              <a [routerLink]="['/**/']" >[*]</a>
+              <a [routerLink]="['/subitems']" target="_self">[*]</a>
+              <!--a [routerLink]="['customer-service']" [queryParams]="{ serviceId: 99 }">xxx</a-->
               </div>
               </td>
               <td>
@@ -101,14 +95,7 @@ export class TreeComponent implements OnInit {
   ctx = {numberOfPeople: this.totalPeople};
 
   hijo: Array<any>;
-  // table = 'items';
   id = 0;
-
-  /*
-  treeForm = this.fb.group({
-    name: ['', Validators.required]
-  });
-  */
 
   mostra = false; // muestra listado hijo
   nuevo = false;  // muestra treeForm
@@ -117,9 +104,7 @@ export class TreeComponent implements OnInit {
 
   campos = NAVEGA;
   tablas = TABLAS;
-  // presupuestoId = 0;
 
-  
   load(id: number) {
     let out = [];
     // console.log(this.tablas[this.index], this.tablas[this.index+1]);
@@ -202,7 +187,7 @@ export class TreeComponent implements OnInit {
   out = [];
 
   ngOnInit() {
-    // console.log(`campos : ${JSON.stringify(this.campos[this.index])} | ${this.index}`);
+    console.log(`campos : ${JSON.stringify(this.campos[this.index])} | ${this.index}`);
     this.campos[this.index].forEach((a) => this.out.push(this.padre[a]));
     this.load(this.ref);
     
