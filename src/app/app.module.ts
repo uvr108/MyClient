@@ -14,7 +14,11 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
     AppComponent,
     ListComponent,
     TreeComponent,
-    TopBarComponent],
+    TopBarComponent,
+ 
+  ],
+ 
+  
   imports: [
     BrowserModule,
     AppRoutingModule,
