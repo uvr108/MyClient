@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NAVEGA } from '../../tabla';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 
+
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -20,27 +21,69 @@ Tabla: Array<string>;
 navega: Array<Array<string>> = NAVEGA;
 // tablas: Array<string> = TABLAS;
 index:number;
+lgroup: object;
 nuevo = false;
 editTabla = true;
 components: Array<Array<string|boolean>>;
 
-/*
-lgroup = {
-  name: ['', Validators.required]
-};
-
-listForm: FormGroup = this.fb.group(this.lgroup);
-*/
-
 listForm: FormGroup;
 
-enviar(msg: object) {
-  if (!this.nuevo) { this.marcar_nuevo(); }
-  this.updateTabla(msg);
-  this.editTabla = true;
+constructor( private crudService: CrudService, private route: ActivatedRoute, private fb: FormBuilder) { }
+
+ngOnInit() {
+
+    this.crudService.Mostra();
+    this.route.data.subscribe(v => this.table = v['table']);
+    this.carga_index();
+    this.load();
+ 
 }
 
-cerrar() { this.nuevo = false; }
+
+
+carga_index() : void {
+
+  
+
+  if (this.table === "presupuestos") { 
+    this.index = 0;
+    this.lgroup = { 
+      id: [''],
+      name: ['', Validators.required]
+    }
+    this.components = [['hidden','id',''],['text','name','yes']]; 
+  }
+  else if (this.table === "items") { 
+    this.index = 1;
+    this.lgroup = { 
+      id: [''],
+      name: ['', Validators.required] 
+    }
+    this.components = [['hidden','id',''],['text','name','yes']]; 
+  }
+  else if (this.table === "subitems") { 
+    this.index = 2;
+    this.lgroup = {
+        name: ['', Validators.required],
+        monto: ['', Validators.required]
+    }
+    this.components = [['hidden','id',''],['text','name','yes'],['text','monto','yes']]; 
+  }
+
+  this.Tabla = this.navega[this.index];
+
+  this.listForm = this.fb.group(this.lgroup);
+
+  
+}
+
+load(): void {
+
+  // console.log(`table: Tabla -> ${this.table}, ${JSON.stringify(this.Tabla)}`);
+  this.crudService.getList(this.table)
+  .subscribe(data => { this.padre = data; });
+
+}
 
 marcar_nuevo() {
   this.updateTabla();
@@ -49,103 +92,46 @@ marcar_nuevo() {
 }
 
 updateTabla(msg: object = null) {
+
+  let json = {};
+  for ( let k in this.lgroup){
+    let value = this.lgroup[k];
+    json[k] = '';
+  }
+  
   if (msg === null) {
-      this.listForm.patchValue({id : '', name: ''});
+      this.listForm.patchValue(json);
   } else {
-      this.listForm.patchValue({id : msg['id'], name: msg['name']});
+      console.log(`msg : ${JSON.stringify(msg)}`); 
+      this.listForm.patchValue(msg);
   }
 }
 
-carga_index() : number {
-
-    let index: number;
-    let lgroup: object;
-
-    if (this.table === "presupuestos") { 
-      index = 0;
-      lgroup = { 
-        id: [''],
-        name: ['', Validators.required]
-      }
-      this.components = [['hidden','id',''],['text','name','yes']]; 
-    }
-    else if (this.table === "items") { 
-      index = 1;
-      lgroup = { 
-        id: [''],
-        name: ['', Validators.required] 
-      }
-      this.components = [['hidden','id',''],['text','name','yes']]; 
-    }
-    else if (this.table === "subitems") { 
-      index = 2;
-      lgroup = {
-          name: ['', Validators.required],
-          monto: ['', Validators.required]
-      }
-      this.components = [['hidden','id',''],['text','name','yes'],['text','monto','yes']]; 
-    }
-
-    this.Tabla = this.navega[index];
-
-    this.listForm = this.fb.group(lgroup);
-    return index;
-    
-}
-
-cargar_form() {
-
-  let lgroup: object;
-  lgroup = { name: ['', Validators.required] };
-  
-  
-}
-
-ngOnInit() {
-
-  this.route
-    .data
-    .subscribe(v => this.table = v['table']);
-  
-  this.index = this.carga_index();  
-  this.load();
-
-}
-
-load(): void {
-
-  // console.log(`table: Tabla -> ${this.table}, ${JSON.stringify(this.Tabla)}`);
-  this.crudService.getList(this.table).subscribe(data => {
-  this.padre = data;});
-
-}
 
 // agregar
 
   onSubmit() {
-  const tab: {} = this.listForm.value;
-  // console.log(`tab: ${JSON.stringify(tab)}`);
   
   this.crudService
-    .adds(tab, this.table)
+    .adds(this.listForm.value, this.table)
     .subscribe(() => { this.load(); this.updateTabla(); } );
     
 }
 // editar
 
   editar() {
-  const list = this.listForm.value;
-  const id = list['id'];
+      const list = this.listForm.value;
+      const id = list['id'];
   
-  this.crudService.
-    Update(id, this.listForm.value, this.table).
-    subscribe(() => this.load());
+      this.crudService.
+      Update(id, this.listForm.value, this.table).
+      subscribe(() => this.load());
 }
 
 
 // borrar
 
-  borrar() {
+borrar() {
       const list = this.listForm.value;
       const id = list['id'];
       
@@ -157,14 +143,27 @@ load(): void {
   ngAfterViewInit() {
 }
 
-  constructor(
-  private crudService: CrudService,
-  private route: ActivatedRoute,
-  private fb: FormBuilder
-) { }
+enviar(msg: object) {
+
+  if (!this.nuevo) { this.marcar_nuevo(); }
+  this.updateTabla(msg);
+  this.editTabla = true;
+
+}
 
 
-  // Delete issue
+cerrar() { this.nuevo = false; }
 
+
+/*
+
+cargar_form() {
+
+  let lgroup: object;
+  lgroup = { name: ['', Validators.required] };
+  
+  
+}
+*/
  
 }
